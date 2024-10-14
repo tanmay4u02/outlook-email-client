@@ -1,7 +1,14 @@
 import React from 'react';
+import Filters from '@components/nav/Filters';
+import EmailList from '@components/emailList';
 
 const EmailsHome = () => {
-  return <div>EmailsHome</div>;
+  return (
+    <>
+      <Filters />
+      <EmailList />
+    </>
+  );
 };
 
 export default EmailsHome;
