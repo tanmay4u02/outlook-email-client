@@ -17,4 +17,21 @@ const getEmails = (page?: number) =>
       return null;
     });
 
+export const getEmailBody = (emailId?: string) =>
+  fetch(`${API_BASE_URL}?id=${emailId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else return null;
+    })
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
+
 export default getEmails;
