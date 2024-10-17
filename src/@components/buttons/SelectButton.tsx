@@ -4,11 +4,12 @@ const SelectButton: React.FC<{
   text: string;
   onClick: () => void;
   selected?: boolean;
-}> = ({ text, onClick, selected }) => {
+  className?: string;
+}> = ({ text, onClick, selected, className }) => {
   return (
     <button
       onClick={onClick}
-      className={`px-4 border-border font-medium text-lg rounded-full ${selected && 'bg-selected-button border-2'} ms-4 hover:bg-selected-button`}
+      className={`px-4 font-medium text-lg rounded-full border-2 border-transparent ${selected && 'bg-selected-button !border-border'} ms-4 hover:bg-selected-button ${className}`}
     >
       {text}
     </button>
