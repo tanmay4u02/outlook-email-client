@@ -3,6 +3,7 @@ import PrimarySelectButton from '@components/buttons/PrimarySelectButton';
 import SelectButton from '@components/buttons/SelectButton';
 import Badge from '@components/layout/Badge';
 import IEmailListItem from '@interfaces/IEmailListItem';
+import getFormattedDate from '@utils/getFormattedDate';
 import React, { useEffect, useState } from 'react';
 
 const SelectedEmail: React.FC<{
@@ -76,7 +77,7 @@ const SelectedEmail: React.FC<{
                 />
               </span>
             </summary>
-            <h3 className="text-sm mt-4">64/92/2737 10:30am</h3>
+            <h3 className="text-sm mt-4">{getFormattedDate(selectedEmail.date)}</h3>
             <div className="mt-6 [&_p]:mb-4" dangerouslySetInnerHTML={{ __html: emailBody ?? '' }} />
           </div>
         </article>

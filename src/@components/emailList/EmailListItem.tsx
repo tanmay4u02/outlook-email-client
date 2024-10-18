@@ -1,5 +1,6 @@
 import Badge from '@components/layout/Badge';
 import IEmailListItem from '@interfaces/IEmailListItem';
+import getFormattedDate from '@utils/getFormattedDate';
 import React from 'react';
 
 const EmailListItem: React.FC<{
@@ -26,7 +27,8 @@ const EmailListItem: React.FC<{
         </h3>
         <div className="mt-2 text-ellipsis overflow-hidden whitespace-nowrap">{emailListItem.short_description}</div>
         <h4 className="mt-2 text-xs">
-          34/92/2737 10:30am {isFavorite && <span className="ms-6 text-accent font-medium">Favorite</span>}
+          {getFormattedDate(emailListItem.date)}{' '}
+          {isFavorite && <span className="ms-6 text-accent font-medium">Favorite</span>}
         </h4>
       </div>
     </li>

@@ -6,7 +6,9 @@ import filterTypeConstants from '@constants/filterTypeConstants';
 const Filters: React.FC<{
   filter: string;
   setFilter: (filter: string) => void;
-}> = ({ filter, setFilter }) => {
+  readEmails: Set<string>;
+  favoriteEmails: Set<string>;
+}> = ({ filter, setFilter, readEmails, favoriteEmails }) => {
   return (
     <Container>
       <span className="font-medium text-lg">Filter By:</span>
@@ -30,6 +32,7 @@ const Filters: React.FC<{
           setFilter(filterTypeConstants.READ);
         }}
         selected={filter === filterTypeConstants.READ}
+        badgeValue={readEmails?.size}
       />
       <SelectButton
         text="Favorites"
@@ -37,6 +40,7 @@ const Filters: React.FC<{
           setFilter(filterTypeConstants.FAVORITES);
         }}
         selected={filter === filterTypeConstants.FAVORITES}
+        badgeValue={favoriteEmails?.size}
       />
     </Container>
   );

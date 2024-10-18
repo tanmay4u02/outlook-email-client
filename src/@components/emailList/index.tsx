@@ -4,63 +4,49 @@ import EmailListItem from './EmailListItem';
 import IEmailListItem from '@interfaces/IEmailListItem';
 import SelectedEmail from '@components/seletedEmail';
 import getFilteredEmailList from '@utils/getFilteredEmailList';
-import modifySet from '@utils/modifySet';
+import PageInputBox from '@components/pagination/PageInputBox';
+import filterTypeConstants from '@constants/filterTypeConstants';
+import useEmailOperations from '@hooks/useEmailOperations';
 
 const EmailList: React.FC<{
   emailList: IEmailListItem[] | null;
   isLoading: boolean;
   filter: string;
-}> = ({ emailList, isLoading, filter }) => {
+  pageNo: number;
+  totalPages: React.MutableRefObject<number>;
+  setPageNo: React.Dispatch<React.SetStateAction<number>>;
+  readEmails: Set<string>;
+  setReadEmails: React.Dispatch<React.SetStateAction<Set<string>>>;
+  favoriteEmails: Set<string>;
+  setFavoriteEmails: React.Dispatch<React.SetStateAction<Set<string>>>;
+}> = ({
+  emailList,
+  isLoading,
+  filter,
+  pageNo,
+  totalPages,
+  setPageNo,
+  readEmails,
+  setReadEmails,
+  favoriteEmails,
+  setFavoriteEmails,
+}) => {
   const [selectedEmail, setSelectedEmail] = useState<IEmailListItem | null>(null);
 
-  const [readEmails, setReadEmails] = useState(new Set<string>(JSON.parse(localStorage.getItem('readEmails') ?? '[]')));
-  const [favoriteEmails, setFavoriteEmails] = useState(
-    new Set<string>(JSON.parse(localStorage.getItem('favoriteEmails') ?? '[]'))
-  );
-
-  const onClick = (emailListItem: IEmailListItem) => {
-    setSelectedEmail(emailListItem);
-    const updateReadEmails = modifySet(readEmails, 'ADD', emailListItem.id);
-
-    localStorage.setItem('readEmails', JSON.stringify(Array.from(updateReadEmails)));
-    setReadEmails(updateReadEmails);
-  };
-
-  const markAsUnread = (id: string) => {
-    const updateReadEmails = modifySet(readEmails, 'DELETE', id);
-
-    localStorage.setItem('readEmails', JSON.stringify(Array.from(updateReadEmails)));
-    setReadEmails(updateReadEmails);
-  };
-
-  const toggleFavorite = (id: string) => {
-    if (id !== '') {
-      let updateFavoriteEmails;
-
-      if (favoriteEmails.has(id)) {
-        updateFavoriteEmails = modifySet(favoriteEmails, 'DELETE', id);
-      } else {
-        updateFavoriteEmails = modifySet(favoriteEmails, 'ADD', id);
-      }
-
-      localStorage.setItem('favoriteEmails', JSON.stringify(Array.from(updateFavoriteEmails)));
-      setFavoriteEmails(updateFavoriteEmails);
-    }
-  };
+  const { onEmailClick, markAsUnread, toggleFavorite } = useEmailOperations({
+    readEmails,
+    setReadEmails,
+    favoriteEmails,
+    setFavoriteEmails,
+    setSelectedEmail,
+  });
 
   useEffect(() => {
     setSelectedEmail(null);
-  }, [filter]);
+    setPageNo(1);
+  }, [filter, setPageNo]);
 
-  if (isLoading) {
-    return (
-      <Container>
-        <span className="mx-auto text-center text-xl block pt-8">Loading...</span>
-      </Container>
-    );
-  }
-
-  if (!emailList) {
+  if (!isLoading && !emailList) {
     return (
       <Container>
         <span className="mx-auto text-center text-xl block pt-8">Something went wrong</span>
@@ -68,27 +54,47 @@ const EmailList: React.FC<{
     );
   }
 
-  const filteredEmailList = getFilteredEmailList({ filter, emailList, readEmails, favoriteEmails });
+  const filteredEmailList = getFilteredEmailList({ filter, emailList: emailList ?? [], readEmails, favoriteEmails });
 
   return (
     <Container>
-      <div className={`w-full h-[calc(100vh-14vh)] ${selectedEmail && 'flex justify-between gap-6'}`}>
-        {filteredEmailList.length === 0 ? (
+      <div className={`w-full h-[calc(100vh-14vh)] relative ${selectedEmail && 'flex justify-between gap-6'}`}>
+        {!isLoading && filteredEmailList.length === 0 ? (
           <span className="mx-auto text-center text-xl block pt-8">No Data</span>
         ) : (
           <>
             <ul className={`overflow-y-scroll pr-2 min-w-[30rem] h-full ${selectedEmail && 'w-[35%]'}`}>
-              {filteredEmailList.map((email) => (
-                <EmailListItem
-                  emailListItem={email}
-                  isRead={readEmails.has(email.id)}
-                  isSelected={selectedEmail?.id === email.id}
-                  isFavorite={favoriteEmails.has(email.id)}
-                  onClick={onClick}
-                  key={email.id}
-                />
-              ))}
+              {isLoading ? (
+                <span className="mx-auto text-center text-xl block pt-8">Loading...</span>
+              ) : (
+                <>
+                  {filteredEmailList.map((email) => (
+                    <EmailListItem
+                      emailListItem={email}
+                      isRead={readEmails.has(email.id)}
+                      isSelected={selectedEmail?.id === email.id}
+                      isFavorite={favoriteEmails.has(email.id)}
+                      onClick={onEmailClick}
+                      key={email.id}
+                    />
+                  ))}
+                  {filter === filterTypeConstants.ALL && (
+                    <>
+                      <br />
+                      <br />
+                    </>
+                  )}
+                </>
+              )}
             </ul>
+            {filter === filterTypeConstants.ALL && (
+              <PageInputBox
+                pageNo={pageNo}
+                setPageNo={setPageNo}
+                totalPages={totalPages}
+                className={`min-w-[30rem] ${selectedEmail ? 'w-[35%]' : 'w-full'} `}
+              />
+            )}
             {selectedEmail && (
               <SelectedEmail
                 selectedEmail={selectedEmail}
